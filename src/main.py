@@ -36,26 +36,28 @@ if __name__ == '__main__':
         'google-cloud-bigquery'
     ]
 
-    # print('------------------------------------------')
-    # print('Getting package metadata via PyPI JSON API')
-    # print('------------------------------------------')
-    # for pkg in packages:
-    #     print(pkg)
-    #     print('- Pulling data...')
-    #     md = PyPIJSONApi().get_package_metadata(pkg)
-    #     print('- Writing to DB...')
-    #     insert_pypi_package(md, session)
-    #     print('- Done!')
+    print('------------------------------------------')
+    print('Getting package metadata via PyPI JSON API')
+    print('------------------------------------------')
+    for pkg in packages:
+        print(pkg)
+        print('- Pulling data...')
+        md = PyPIJSONApi().get_package_metadata(pkg)
+        print('- Writing to DB...')
+        insert_pypi_package(md, session)
+        print('- Done!')
 
     print('-------------------------------------------------')
     print('Getting package download data via PyPI BQ Dataset')
     print('-------------------------------------------------')
+    print('- Pulling data...')
     dl_stats = PyPIBigQuery().get_package_download_counts(
         pkgs=packages,
-        include_version=True,
-        include_country=True,
+        include_version=False,
+        include_country=False,
         lower_date_bound=date(2025, 1, 1)
     )
+    print('- Writing to DB...')
     dl_stats.to_sql(
         name=PyPIDownloadCounts.__tablename__,
         con=engine,
@@ -65,33 +67,33 @@ if __name__ == '__main__':
         method='multi'
     )
 
-    # print('-------------------------------------')
-    # print('Getting repo data via GitHub Rest API')
-    # print('-------------------------------------')
-    # for pkg in packages:
-    #     print(pkg)
-    #     print('- Getting previously found GitHub info...')
-    #     res = (
-    #         session.query(
-    #             PyPIPackages.github_owner,
-    #             PyPIPackages.github_repo_name
-    #         )
-    #         .filter(PyPIPackages.package_name == pkg)
-    #         .first()
-    #     )
-    #
-    #     if not res[0]:
-    #         print("--> No GitHub for provided package!")
-    #         continue
-    #
-    #     github_owner, github_repo_name = res
-    #     print(f"--> Owner/Repo: {github_owner}/{github_repo_name}")
-    #
-    #     print('- Pulling data...')
-    #     api = GitHubAPI()
-    #     data = api.get_repo_metadata(owner=github_owner, repo=github_repo_name)
-    #     print('- Writing to DB...')
-    #     entry = GitHubRepos(**dict(data))
-    #     session.add(entry)
-    #     session.commit()
-    #     print('- Done!')
+    print('-------------------------------------')
+    print('Getting repo data via GitHub Rest API')
+    print('-------------------------------------')
+    for pkg in packages:
+        print(pkg)
+        print('- Getting previously found GitHub info...')
+        res = (
+            session.query(
+                PyPIPackages.github_owner,
+                PyPIPackages.github_repo_name
+            )
+            .filter(PyPIPackages.package_name == pkg)
+            .first()
+        )
+
+        if not res[0]:
+            print("--> No GitHub for provided package!")
+            continue
+
+        github_owner, github_repo_name = res
+        print(f"--> Owner/Repo: {github_owner}/{github_repo_name}")
+
+        print('- Pulling data...')
+        api = GitHubAPI()
+        data = api.get_repo_metadata(owner=github_owner, repo=github_repo_name)
+        print('- Writing to DB...')
+        entry = GitHubRepos(**dict(data))
+        session.add(entry)
+        session.commit()
+        print('- Done!')

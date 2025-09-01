@@ -35,7 +35,7 @@ def get_session(engine):
     return Session()
 
 
-def insert_pypi_package(md: PyPIPackage, session: Session):
+def insert_pypi_package(md, session):
 
     # Insert top-level package metadata
     pkg_row = PyPIPackages(
@@ -72,4 +72,3 @@ def insert_pypi_package(md: PyPIPackage, session: Session):
 
     # Commit
     session.commit()
-

@@ -119,11 +119,3 @@ class PyPIJSONApi:
     def get_package_metadata(self, pkg):
         raw_data = self._pull_raw_package_metadata(pkg)
         return self._validate_raw_data(raw_data)
-
-
-
-
-
-
-
-
