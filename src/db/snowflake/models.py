@@ -28,7 +28,7 @@ class PyPIPackages(Base):
     github_repo_name_full = Column("GITHUB_REPO_NAME_FULL", String(500), nullable=True)
     pulled_dt = Column("PULLED_DT", DateTime, nullable=False)
 
-    # Indexes dont work on traditional tables
+    # Indexes are not part of standard tables in Snowflake - only hybrid tables!
     # __table_args__ = (
     #     Index("ix_pypi_github_repo_fullname", "GITHUB_REPO_NAME_FULL"),
     #     Index("ix_pypi_package_name", "PACKAGE_NAME"),
@@ -36,9 +36,10 @@ class PyPIPackages(Base):
 
     releases = relationship("PyPIPackageReleases", back_populates="package")
     downloads = relationship("PyPIDownloadCounts", back_populates="package")
+    # dependencies = relationship("PyPIPackages", back_populates="package")
 
     # cant guarantee github entires in pypi not null, cant key
-    # github_repo = relationship("GitHubRepos", back_populates="packages")
+    # github_repos = relationship("GitHubRepos", back_populates="packages")
 
 
 class PyPIPackageReleases(Base):
@@ -88,7 +89,7 @@ class PyPIDownloadCounts(Base):
             "COUNTRY_CODE",
             name="UQ_PYPI_DOWNLOAD_COUNTS"
         ),
-        # Indexes dont work on traditional tables
+        # Indexes are not part of standard tables in Snowflake - only hybrid tables!
         # Index("ix_downloads_w_version", "PACKAGE_NAME", "DT", "VERSION"),
         # Index("ix_downloads_w_country", "PACKAGE_NAME", "DT", "COUNTRY_CODE"),
         # Index("ix_downloads_w_version_country", "PACKAGE_NAME", "DT", "VERSION", "COUNTRY_CODE")
@@ -116,11 +117,11 @@ class GitHubRepos(Base):
 
     __table_args__ = (
         UniqueConstraint("REPO_NAME_FULL", "SNAPSHOT_DT", name="uq_fullname_snapshot"),
-        # Indexes dont work on traditional tables
+        # Indexes are not part of standard tables in Snowflake - only hybrid tables!
         # Index("ix_github_fullname", "REPO_NAME_FULL", "SNAPSHOT_DT"),
     )
 
     # cant guarantee github entires in pypi not null, cant key
-    # pypi_package = relationship("PyPIPackages", back_populates="github_repos")
+    # packages = relationship("PyPIPackages", back_populates="github_repos")
 
 
